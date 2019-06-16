@@ -2,6 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageProjectUrl>https://github.com/nabehiro/nuget-ci-sample</PackageProjectUrl>
+    <Description>this is ci test.</Description>
+    <Copyright>nabehiro</Copyright>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+    <PackageTags>test</PackageTags>
   </PropertyGroup>
 
 </Project>
