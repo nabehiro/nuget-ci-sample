@@ -11,9 +11,8 @@ jobs:
     executor: dotnet
     steps:
       - checkout
-      - run: cd ./src
-      - run: dotnet build -c Debug
-      - run: dotnet test -c Debug --no-build
+      - run: dotnet ./src/ build -c Debug
+      - run: dotnet ./src/ test -c Debug --no-build
   build-push:
     executor: dotnet
     steps:
