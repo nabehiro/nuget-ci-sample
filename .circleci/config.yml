@@ -1,16 +1,41 @@
-version: 2
-jobs:
-  build:
+version: 2.1
+executors:
+  dotnet:
     docker:
-      - image: microsoft/dotnet:2.1-sdk
-    working_directory: ~/repo
+      - image: mcr.microsoft.com/dotnet/core/sdk:2.2
+    environment:
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+      NUGET_XMLDOC_MODE: skip
+jobs:
+  build-test:
+    executor: dotnet
     steps:
       - checkout
-      - run:
-          name: Build Solution
-          command: cd ~/repo/src && dotnet build
+      - run: cd ./src
+      - run: dotnet build -c Debug
+      - run: dotnet test -c Debug --no-build
+  build-push:
+    executor: dotnet
+    steps:
+      - checkout
+      - run: dotnet build -c Release -p:Version=${CIRCLE_TAG}
+      - run: dotnet test -c Release --no-build
+      - run: dotnet pack ./src/NugetCiSample/NugetCiSample.csproj -c Release --no-build -p:Version=${CIRCLE_TAG}
+      - store_artifacts:
+          path: ./src/NugetCiSample/bin/Release
+          destination: ./NugetCiSample/
+      - run: dotnet nuget push ./src/NugetCiSample/bin/Release/NugetCiSample.${CIRCLE_TAG}.nupkg -s https://www.nuget.org/api/v2/package -k ${NUGET_KEY}
 workflows:
   version: 2
-  default:
+  build-and-push:
     jobs:
-      - build
+      - build-test:
+          filters:
+            tags:
+              only: /.*/
+      - build-push:
+          filters:
+            tags:
+              only: /^\d\.\d\.\d.*/
+            branches:
+              ignore: /.*/
